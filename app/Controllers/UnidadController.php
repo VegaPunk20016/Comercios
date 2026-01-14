@@ -4,12 +4,11 @@ namespace App\Controllers;
 
 use App\Controllers\BaseController;
 use CodeIgniter\HTTP\ResponseInterface;
-use App\Models\ActividadModel;
 use CodeIgniter\RESTful\ResourceController;
 
-class ActividadController extends ResourceController
+class UnidadController extends ResourceController
 {
-    protected $modelName = 'App\Models\ActividadModel';
+    protected $modelName = 'App\Models\UnidadModel';
     protected $format    = 'json';
 
     public function index()
@@ -22,11 +21,11 @@ class ActividadController extends ResourceController
             }
             $pagina = $this->request->getVar('page') ?? 1;
 
-            $personal = $this->model->paginate($limite);
+            $unidades = $this->model->paginate($limite);
             $paginacion = $this->model->pager;
 
             return $this->respond([
-                'data' => $personal,
+                'data' => $unidades,
                 'meta' => [
                     'total' => $paginacion->getTotal(),
                     'per_page' => $limite,
@@ -44,8 +43,8 @@ class ActividadController extends ResourceController
             log_message('critical', $e->getMessage());
             return $this->failServerError('Error crítico en la base de datos.');
         } catch (\Exception $e) {
-            log_message('error', 'Error en ActividadController::index: ' . $e->getMessage());
-            return $this->failServerError('Ocurrió un error al obtener los registros de Actividad');
+            log_message('error', 'Error en UnidadController::index: ' . $e->getMessage());
+            return $this->failServerError('Ocurrió un error al obtener los registros de unidades');
         }
     }
 
@@ -53,22 +52,22 @@ class ActividadController extends ResourceController
     {
         set_time_limit(120);
         try {
-            $solicitud = $this->model->find($id);
+            $unidad = $this->model->find($id);
 
-            if (!$solicitud) {
-                return $this->failNotFound('No se encontró la solicitud con ID: ' . $id);
+            if (!$unidad) {
+                return $this->failNotFound('No se encontró la unidad con ID: ' . $id);
             }
 
             return $this->respond([
                 'status' => 200,
-                'data' => $solicitud
+                'data' => $unidad
             ]);
         } catch (\mysqli_sql_exception $e) {
             log_message('critical', $e->getMessage());
             return $this->failServerError('Error crítico en la base de datos.');
         } catch (\Exception $e) {
-            log_message('error', 'Error en ActividadController::show: ' . $e->getMessage());
-            return $this->failServerError('Ocurrió un error al obtener la solicitud al recurso de Actividad');
+            log_message('error', 'Error en UnidadController::show: ' . $e->getMessage());
+            return $this->failServerError('Ocurrió un error al obtener el registro de unidad');
         }
     }
 }

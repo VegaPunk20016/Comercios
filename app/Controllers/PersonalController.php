@@ -4,12 +4,11 @@ namespace App\Controllers;
 
 use App\Controllers\BaseController;
 use CodeIgniter\HTTP\ResponseInterface;
-use App\Models\ActividadModel;
 use CodeIgniter\RESTful\ResourceController;
 
-class ActividadController extends ResourceController
+class PersonalController extends ResourceController
 {
-    protected $modelName = 'App\Models\ActividadModel';
+    protected $modelName = 'App\Models\PersonalModel';
     protected $format    = 'json';
 
     public function index()
@@ -44,31 +43,30 @@ class ActividadController extends ResourceController
             log_message('critical', $e->getMessage());
             return $this->failServerError('Error crítico en la base de datos.');
         } catch (\Exception $e) {
-            log_message('error', 'Error en ActividadController::index: ' . $e->getMessage());
-            return $this->failServerError('Ocurrió un error al obtener los registros de Actividad');
+            log_message('error', 'Error en PersonalController::index: ' . $e->getMessage());
+            return $this->failServerError('Ocurrió un error al obtener los registros de personal');
         }
     }
 
     public function show($id = null)
     {
-        set_time_limit(120);
         try {
-            $solicitud = $this->model->find($id);
+            $personal = $this->model->find($id);
 
-            if (!$solicitud) {
-                return $this->failNotFound('No se encontró la solicitud con ID: ' . $id);
+            if (!$personal) {
+                return $this->failNotFound('No se encontró el personal con ID: ' . $id);
             }
 
             return $this->respond([
                 'status' => 200,
-                'data' => $solicitud
+                'data' => $personal
             ]);
         } catch (\mysqli_sql_exception $e) {
             log_message('critical', $e->getMessage());
             return $this->failServerError('Error crítico en la base de datos.');
         } catch (\Exception $e) {
-            log_message('error', 'Error en ActividadController::show: ' . $e->getMessage());
-            return $this->failServerError('Ocurrió un error al obtener la solicitud al recurso de Actividad');
+            log_message('error', 'Error en PersonalController::show: ' . $e->getMessage());
+            return $this->failServerError('Ocurrió un error al obtener el registro de personal');
         }
     }
 }

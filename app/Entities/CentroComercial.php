@@ -4,17 +4,16 @@ namespace App\Entities;
 
 use CodeIgniter\Entity\Entity;
 
-class Actividad extends Entity implements \JsonSerializable
+class CentroComercial extends Entity implements \JsonSerializable
 {
-    // Mapeo: 'NombreEnCodigo' => 'nombre_en_db'
     protected $datamap = [
-        'CodigoActividad' => 'codigo_act',
-        'NombreActividad' => 'nombre_act',
+        'Tipo' => 'tipoCenCom',
+        'Nombre' => 'nom_CenCom',
     ];
-
+    
     public function jsonSerialize(): array
     {
-        $data = parent::jsonSerialize(); 
+        $data = parent::jsonSerialize();
         $mappedData = [];
 
         $reverseMap = array_flip($this->datamap);
@@ -32,6 +31,6 @@ class Actividad extends Entity implements \JsonSerializable
             $mappedData['CheckList'] = filter_var($mappedData['CheckList'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? false;
         }
 
-        return $mappedData; 
+        return $mappedData;
     }
 }

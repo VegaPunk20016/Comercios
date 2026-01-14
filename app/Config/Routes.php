@@ -7,7 +7,22 @@ use CodeIgniter\Router\RouteCollection;
  */
 $routes->get('/', 'Home::index');
 
-$routes->resource('actividad', [
+$routes->resource('api/actividad', [
     'controller' => 'ActividadController',
+    'only' => ['index', 'show']
+]);
+
+$routes->resource('api/personal', [
+    'controller' => 'PersonalController',
+    'only' => ['index', 'show']
+]);
+
+$routes->resource('api/unidad', [
+    'controller' => 'UnidadController',
+    'only' => ['index', 'show']
+]);
+
+$routes->resource('api/centrocomercial', [
+    'controller' => 'CentroComercialController',
     'only' => ['index', 'show']
 ]);

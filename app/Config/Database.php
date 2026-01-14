@@ -210,6 +210,7 @@ class Database extends Config
             'compress'     => filter_var(getenv('database.default.compress'), FILTER_VALIDATE_BOOLEAN),
             'strictOn'     => filter_var(getenv('database.default.strictOn'), FILTER_VALIDATE_BOOLEAN),
             'port'         => getenv('database.default.port') ? (int)getenv('database.default.port') : 3306,
+            'connectDuration' => 5,
         ];
     }
 }
