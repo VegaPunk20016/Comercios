@@ -9,42 +9,49 @@ use CodeIgniter\RESTful\ResourceController;
 
 class MunicipioController extends ResourceController
 {
-    protected $model;
-    protected $format = 'json';
-
-    public function __construct()
-    {
-        $this->model = new MunicipioModel();
-    }
+     protected $modelName = 'App\Models\MunicipioModel';
+    protected $format    = 'json';
 
     public function index()
     {
-        $limite = 10; // Número de registros por página
-        $pagina = $this->request->getVar('page') ?? 1;
+        set_time_limit(120);
+        try {
+            $limite = $this->request->getVar('limit') ?? 10;
+            if ($limite > 100) {
+                $limite = 100;
+            }
+            $pagina = $this->request->getVar('page') ?? 1;
 
-        // Obtener datos paginados
-        $actividad = $this->model->paginate($limite);
-        $paginacion = $this->model->pager;
+            $personal = $this->model->paginate($limite);
+            $paginacion = $this->model->pager;
 
-        return $this->respond([
-            'data' => $actividad, 
-            'meta' => [
-                'total' => $paginacion->getTotal(),
-                'per_page' => $limite,
-                'current_page' => $pagina,
-                'total_pages' => $paginacion->getPageCount()
-            ],
-            'links' => [
-                'first' => $paginacion->getPageURI(1),
-                'last' => $paginacion->getPageURI($paginacion->getPageCount()),
-                'prev' => ($pagina > 1) ? $paginacion->getPageURI($pagina - 1) : null,
-                'next' => ($pagina < $paginacion->getPageCount()) ? $paginacion->getPageURI($pagina + 1) : null
-            ]
-        ]);
+            return $this->respond([
+                'data' => $personal,
+                'meta' => [
+                    'total' => $paginacion->getTotal(),
+                    'per_page' => $limite,
+                    'current_page' => $pagina,
+                    'total_pages' => $paginacion->getPageCount()
+                ],
+                'links' => [
+                    'first' => $paginacion->getPageURI(1),
+                    'last' => $paginacion->getPageURI($paginacion->getPageCount()),
+                    'prev' => ($pagina > 1) ? $paginacion->getPageURI($pagina - 1) : null,
+                    'next' => ($pagina < $paginacion->getPageCount()) ? $paginacion->getPageURI($pagina + 1) : null
+                ]
+            ]);
+        } catch (\mysqli_sql_exception $e) {
+            log_message('critical', $e->getMessage());
+            return $this->failServerError('Error crítico en la base de datos.');
+        } catch (\Exception $e) {
+            log_message('error', 'Error en MunicipioModel::index: ' . $e->getMessage());
+            return $this->failServerError('Ocurrió un error al obtener los registros de Municipio');
+        }
     }
 
     public function show($id = null)
     {
+        set_time_limit(120);
         try {
             $solicitud = $this->model->find($id);
 
@@ -56,9 +63,12 @@ class MunicipioController extends ResourceController
                 'status' => 200,
                 'data' => $solicitud
             ]);
+        } catch (\mysqli_sql_exception $e) {
+            log_message('critical', $e->getMessage());
+            return $this->failServerError('Error crítico en la base de datos.');
         } catch (\Exception $e) {
-            log_message('error', 'Error en SolicitudController::show: ' . $e->getMessage());
-            return $this->failServerError('Ocurrió un error al obtener la solicitud');
+            log_message('error', 'Error en MunicipioModel::show: ' . $e->getMessage());
+            return $this->failServerError('Ocurrió un error al obtener la solicitud al recurso de Municipio');
         }
     }
 }
