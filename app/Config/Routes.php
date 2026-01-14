@@ -12,7 +12,6 @@ $routes->resource('api/actividad', [
     'only' => ['index', 'show']
 ]);
 
-<<<<<<< HEAD
 $routes->resource('entidadFederativa', [
     'controller' => 'EntidadFederativaController',
     'only' => ['index', 'show']
@@ -30,7 +29,9 @@ $routes->resource('localidad', [
 
 $routes->resource('domicilio', [
     'controller' => 'DomicilioController',
-=======
+    'only' => ['index', 'show']
+   ]); 
+
 $routes->resource('api/personal', [
     'controller' => 'PersonalController',
     'only' => ['index', 'show']
@@ -43,6 +44,5 @@ $routes->resource('api/unidad', [
 
 $routes->resource('api/centrocomercial', [
     'controller' => 'CentroComercialController',
->>>>>>> 88f1bcb56df4ad64e6609dbcae6633a43094ca8f
     'only' => ['index', 'show']
 ]);
