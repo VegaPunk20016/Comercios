@@ -9,7 +9,7 @@ class ActividadModel extends Model
     protected $table            = 'actividad_scian';
     protected $primaryKey       = 'codigo_act';
     protected $useAutoIncrement = true;
-    protected $returnType       = '/App\Entities\ActividadEntity';
+    protected $returnType       = '\App\Entities\Actividad';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
     protected $allowedFields    = [
