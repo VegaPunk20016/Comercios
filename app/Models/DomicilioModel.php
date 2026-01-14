@@ -6,41 +6,29 @@ use CodeIgniter\Model;
 
 class DomicilioModel extends Model
 {
-    protected $table            = 'domicilios';
-    protected $primaryKey       = 'id';
+    protected $table            = 'domicilio';
+    protected $primaryKey       = 'id_domicilio';
     protected $useAutoIncrement = true;
-    protected $returnType       = 'array';
+    protected $returnType       = '\App\Entities\Domicilio';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = [];
+    protected $allowedFields    = [
+        'tipo_vial',
+        'nom_vial',
+        'numero_ext',
+        'letra_ext',
+        'numero_int',
+        'letra_int',
+        'edificio',
+        'edificio_e',
+        'tipo_asent',
+        'nomb_asent',
+        'cod_postal',
+        'num_local',
+        'id_centro_comercial',
+        'id_localidad',
+    ];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
-
-    protected array $casts = [];
-    protected array $castHandlers = [];
-
-    // Dates
-    protected $useTimestamps = false;
-    protected $dateFormat    = 'datetime';
-    protected $createdField  = 'created_at';
-    protected $updatedField  = 'updated_at';
-    protected $deletedField  = 'deleted_at';
-
-    // Validation
-    protected $validationRules      = [];
-    protected $validationMessages   = [];
-    protected $skipValidation       = false;
-    protected $cleanValidationRules = true;
-
-    // Callbacks
-    protected $allowCallbacks = true;
-    protected $beforeInsert   = [];
-    protected $afterInsert    = [];
-    protected $beforeUpdate   = [];
-    protected $afterUpdate    = [];
-    protected $beforeFind     = [];
-    protected $afterFind      = [];
-    protected $beforeDelete   = [];
-    protected $afterDelete    = [];
 }
