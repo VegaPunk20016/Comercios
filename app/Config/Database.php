@@ -209,7 +209,7 @@ class Database extends Config
             'encrypt'      => filter_var(getenv('database.default.encrypt'), FILTER_VALIDATE_BOOLEAN),
             'compress'     => filter_var(getenv('database.default.compress'), FILTER_VALIDATE_BOOLEAN),
             'strictOn'     => filter_var(getenv('database.default.strictOn'), FILTER_VALIDATE_BOOLEAN),
-            'port'         => 3306,
+            'port'         => getenv('database.default.port') ? (int)getenv('database.default.port') : 3306,
         ];
     }
 }
