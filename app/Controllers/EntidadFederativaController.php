@@ -27,6 +27,7 @@ class EntidadFederativaController extends ResourceController
 
             return $this->respond([
                 'data' => $entidadFederativa,
+
                 'meta' => [
                     'total' => $paginacion->getTotal(),
                     'per_page' => $limite,
@@ -51,7 +52,7 @@ class EntidadFederativaController extends ResourceController
 
     public function show($id = null)
     {
-         set_time_limit(120);
+        set_time_limit(120);
         try {
             $solicitud = $this->model->find($id);
 

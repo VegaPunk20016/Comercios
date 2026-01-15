@@ -51,7 +51,7 @@ class LocalidadController extends ResourceController
 
     public function show($id = null)
     {
-       set_time_limit(120);
+        set_time_limit(120);
         try {
             $solicitud = $this->model->find($id);
 

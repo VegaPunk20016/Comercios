@@ -22,6 +22,7 @@ class DomicilioController extends ResourceController
             }
             $pagina = $this->request->getVar('page') ?? 1;
 
+
             $domicilio = $this->model->paginate($limite);
             $paginacion = $this->model->pager;
 
