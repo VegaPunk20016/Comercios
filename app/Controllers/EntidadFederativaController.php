@@ -1,10 +1,6 @@
 <?php
 
 namespace App\Controllers;
-
-use App\Controllers\BaseController;
-use CodeIgniter\HTTP\ResponseInterface;
-use App\Models\EntidadFederativaModel;
 use CodeIgniter\RESTful\ResourceController;
 
 class EntidadFederativaController extends ResourceController

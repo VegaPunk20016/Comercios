@@ -1,10 +1,6 @@
 <?php
 
 namespace App\Controllers;
-
-use App\Controllers\BaseController;
-use CodeIgniter\HTTP\ResponseInterface;
-use App\Models\DomicilioModel;
 use CodeIgniter\RESTful\ResourceController;
 
 class DomicilioController extends ResourceController
