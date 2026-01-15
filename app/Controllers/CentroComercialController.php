@@ -21,11 +21,11 @@ class CentroComercialController extends ResourceController
             }
             $pagina = $this->request->getVar('page') ?? 1;
 
-            $personal = $this->model->paginate($limite);
+            $centro = $this->model->paginate($limite);
             $paginacion = $this->model->pager;
 
             return $this->respond([
-                'data' => $personal,
+                'data' => $centro,
                 'meta' => [
                     'total' => $paginacion->getTotal(),
                     'per_page' => $limite,
@@ -52,14 +52,14 @@ class CentroComercialController extends ResourceController
     {
         set_time_limit(120);
         try {
-            $solicitud = $this->model->find($id);
+            $centro = $this->model->find($id);
 
-            if (!$solicitud) {
-                return $this->failNotFound('No se encontró la solicitud con ID: ' . $id);
+            if (!$centro) {
+                return $this->failNotFound('No se encontró el centro comercial con ID: ' . $id);
             }
 
             return $this->respond([
-                'data' => $solicitud
+                'data' => $centro 
             ]);
         } catch (\mysqli_sql_exception $e) {
             log_message('critical', $e->getMessage());

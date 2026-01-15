@@ -20,7 +20,6 @@ class DomicilioModel extends Model
         'numero_int',
         'letra_int',
         'edificio',
-        'edificio_e',
         'tipo_asent',
         'nomb_asent',
         'cod_postal',
@@ -29,6 +28,4 @@ class DomicilioModel extends Model
         'id_localidad',
     ];
 
-    protected bool $allowEmptyInserts = false;
-    protected bool $updateOnlyChanged = true;
 }

@@ -12,25 +12,25 @@ $routes->resource('api/actividad', [
     'only' => ['index', 'show']
 ]);
 
-$routes->resource('entidadFederativa', [
+$routes->resource('api/entidadFederativa', [
     'controller' => 'EntidadFederativaController',
     'only' => ['index', 'show']
 ]);
 
-$routes->resource('municipio', [
+$routes->resource('api/municipio', [
     'controller' => 'MunicipioController',
     'only' => ['index', 'show']
 ]);
 
-$routes->resource('localidad', [
+$routes->resource('api/localidad', [
     'controller' => 'LocalidadController',
     'only' => ['index', 'show']
 ]);
 
-$routes->resource('domicilio', [
+$routes->resource('api/domicilio', [
     'controller' => 'DomicilioController',
     'only' => ['index', 'show']
-   ]); 
+]);
 
 $routes->resource('api/personal', [
     'controller' => 'PersonalController',

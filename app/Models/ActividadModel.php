@@ -14,6 +14,14 @@ class ActividadModel extends Model
     protected $protectFields    = true;
     protected $allowedFields    = [
         'nombre_act',
+        'sector_cve',
+        'sector_nom',
+        'subsector_cve',
+        'subsector_nom',
+        'rama_cve',
+        'rama_nom',
+        'subrama_cve',
+        'subrama_nom',
     ];
 
     protected bool $allowEmptyInserts = false;

@@ -4,7 +4,7 @@ namespace App\Entities;
 
 use CodeIgniter\Entity\Entity;
 
-class Municipio extends Entity
+class Municipio extends Entity implements \JsonSerializable
 {
     protected $datamap = [
         'IdMunicipio' => 'id_municipio',
@@ -13,21 +13,26 @@ class Municipio extends Entity
         'IdEntidad' => 'id_identidad',
     ];
     
-    public function jsonSerialize()
+   public function jsonSerialize(): array
     {
-        $data = parent::jsonSerialize();  
+        $data = parent::jsonSerialize(); 
         $mappedData = [];
-        foreach ($data as $key => $value) {
-            if (array_key_exists($key, $this->datamap)) {
-                $mappedData[$this->datamap[$key]] = $value; 
+
+        $reverseMap = array_flip($this->datamap);
+
+        foreach ($data as $dbKey => $value) {
+            if (array_key_exists($dbKey, $reverseMap)) {
+                $cleanKey = $reverseMap[$dbKey];
+                $mappedData[$cleanKey] = $value;
             } else {
-                $mappedData[$key] = $value; 
+                $mappedData[$dbKey] = $value;
             }
         }
 
         if (isset($mappedData['CheckList'])) {
             $mappedData['CheckList'] = filter_var($mappedData['CheckList'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? false;
         }
-        return $mappedData;  
+
+        return $mappedData; 
     }
 }

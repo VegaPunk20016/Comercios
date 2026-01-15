@@ -22,11 +22,11 @@ class ActividadController extends ResourceController
             }
             $pagina = $this->request->getVar('page') ?? 1;
 
-            $personal = $this->model->paginate($limite);
+            $actividad = $this->model->paginate($limite);
             $paginacion = $this->model->pager;
 
             return $this->respond([
-                'data' => $personal,
+                'data' => $actividad,
                 'meta' => [
                     'total' => $paginacion->getTotal(),
                     'per_page' => $limite,
@@ -53,15 +53,15 @@ class ActividadController extends ResourceController
     {
         set_time_limit(120);
         try {
-            $solicitud = $this->model->find($id);
+            $actividad = $this->model->find($id);
 
-            if (!$solicitud) {
-                return $this->failNotFound('No se encontró la solicitud con ID: ' . $id);
+            if (!$actividad) {
+                return $this->failNotFound('No se encontró la actividad con ID: ' . $id);
             }
 
             return $this->respond([
                 'status' => 200,
-                'data' => $solicitud
+                'data' => $actividad
             ]);
         } catch (\mysqli_sql_exception $e) {
             log_message('critical', $e->getMessage());

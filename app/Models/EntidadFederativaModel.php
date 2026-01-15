@@ -16,7 +16,4 @@ class EntidadFederativaModel extends Model
         'cve_ent',
         'entidad',
     ];
-
-    protected bool $allowEmptyInserts = false;
-    protected bool $updateOnlyChanged = true;
 }

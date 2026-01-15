@@ -20,6 +20,4 @@ class LocalidadModel extends Model
         'id_municipio',
     ];
 
-    protected bool $allowEmptyInserts = false;
-    protected bool $updateOnlyChanged = true;
 }

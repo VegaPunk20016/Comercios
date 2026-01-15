@@ -10,6 +10,14 @@ class Actividad extends Entity implements \JsonSerializable
     protected $datamap = [
         'CodigoActividad' => 'codigo_act',
         'NombreActividad' => 'nombre_act',
+        'ClaveSector' => 'sector_cve',
+        'NombreSector' => 'sector_nom',
+        'ClaveSubsector' => 'subsector_cve',
+        'NombreSubsector' => 'subsector_nom',
+        'ClaveRama' => 'rama_cve',
+        'NombreRama' => 'rama_nom',
+        'ClaveSubrama' => 'subrama_cve',
+        'NombreSubrama' => 'subrama_nom',
     ];
 
     public function jsonSerialize(): array

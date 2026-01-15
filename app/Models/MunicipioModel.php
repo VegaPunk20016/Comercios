@@ -16,7 +16,4 @@ class MunicipioModel extends Model
         'cve_mun',
         'municipio',
     ];
-
-    protected bool $allowEmptyInserts = false;
-    protected bool $updateOnlyChanged = true;
 }

@@ -8,14 +8,11 @@ class Personal extends Entity implements \JsonSerializable
 {
     protected $datamap = [
         'OcupacionPersonal' => 'per_ocu',
-        'Descripcion'       => 'descripcion',
-        'RangoMinimo'      => 'rango_min',
-        'RangoMaximo'      => 'rango_max',
     ];
 
-    public function jsonSerialize(): array
+   public function jsonSerialize(): array
     {
-        $data = parent::jsonSerialize();
+        $data = parent::jsonSerialize(); 
         $mappedData = [];
 
         $reverseMap = array_flip($this->datamap);
@@ -28,9 +25,11 @@ class Personal extends Entity implements \JsonSerializable
                 $mappedData[$dbKey] = $value;
             }
         }
+
         if (isset($mappedData['CheckList'])) {
             $mappedData['CheckList'] = filter_var($mappedData['CheckList'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? false;
         }
-        return $mappedData;
+
+        return $mappedData; 
     }
 }

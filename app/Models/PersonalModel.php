@@ -13,11 +13,5 @@ class PersonalModel extends Model
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
     protected $allowedFields    = [
-        'descripcion',
-        'rango_min',
-        'rango_max',
     ];
-
-    protected bool $allowEmptyInserts = false;
-    protected bool $updateOnlyChanged = true;
 }
