@@ -26,12 +26,10 @@ class Unidad extends Entity implements \JsonSerializable
     public $Actividad = null;
     public $Domicilio = null;
     public $EstratoPersonal = null;
-    
-  public function jsonSerialize(): array
+
+    public function jsonSerialize(): array
     {
         $mappedData = parent::jsonSerialize();
-
-        // Inyectamos las relaciones si existen
         if (!empty($this->Actividad)) {
             $mappedData['Actividad'] = $this->Actividad;
         }
@@ -41,7 +39,6 @@ class Unidad extends Entity implements \JsonSerializable
         if (!empty($this->EstratoPersonal)) {
             $mappedData['EstratoPersonal'] = $this->EstratoPersonal;
         }
-
         return $mappedData;
     }
 }
