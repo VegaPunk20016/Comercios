@@ -80,6 +80,7 @@ class UnidadController extends ResourceController
             $pagina = $this->request->getVar('page') ?? 1;
 
             $filtros = [
+                'cve_ent'      => $this->request->getVar('cve_ent'),
                 'municipio'    => $this->request->getVar('municipio'),
                 'cp'           => $this->request->getVar('cp'),
                 'ageb'         => $this->request->getVar('ageb'),
@@ -93,10 +94,10 @@ class UnidadController extends ResourceController
                 'q'            => $this->request->getVar('q')
             ];
             $unidades = $this->model
-                            ->withAllData()
-                            ->aplicarFiltros($filtros)
-                            ->paginate($limit);
-            
+                ->withAllData()
+                ->aplicarFiltros($filtros)
+                ->paginate($limit);
+
             $paginacion = $this->model->pager;
             foreach ($unidades as $item) {
                 $this->hydrateUnidad($item);
@@ -118,7 +119,6 @@ class UnidadController extends ResourceController
                     'next' => ($pagina < $paginacion->getPageCount()) ? $paginacion->getPageURI($pagina + 1) : null
                 ]
             ]);
-
         } catch (\mysqli_sql_exception $e) {
             log_message('critical', $e->getMessage());
             return $this->failServerError('Error crítico en la base de datos.');

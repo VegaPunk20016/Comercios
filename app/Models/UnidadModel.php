@@ -62,10 +62,7 @@ class UnidadModel extends Model
         return $this;
     }
 
-    /**
-     * Aplica filtros dinámicos recibidos desde el controlador.
-     * @param array $filtros Array asociativo con las claves de búsqueda.
-     */
+
     public function aplicarFiltros($filtros)
     {
         // 1. Filtros Geográficos
@@ -82,7 +79,6 @@ class UnidadModel extends Model
             $this->where('localidad.manzana', $filtros['manzana']);
         }
 
-        // 2. Filtros de Identificación
         if (!empty($filtros['clee'])) {
             $this->where('unidad_economica.clee', $filtros['clee']);
         }
@@ -90,8 +86,6 @@ class UnidadModel extends Model
             // 'after' permite buscar "46" y traer todo el sector
             $this->like('unidad_economica.codigo_act', $filtros['actividad'], 'after');
         }
-
-        // 3. Filtros Específicos (NUEVOS)
         if (!empty($filtros['nombre'])) {
             // like %nombre%
             $this->like('unidad_economica.nom_estab', $filtros['nombre']);
@@ -100,19 +94,19 @@ class UnidadModel extends Model
             $this->like('unidad_economica.raz_social', $filtros['razon_social']);
         }
         if (!empty($filtros['fecha_alta'])) {
-            // Busca fecha exacta. Si quieres "a partir de", usa 'fecha_alta >='
             $this->where('unidad_economica.fecha_alta', $filtros['fecha_alta']);
         }
         if (!empty($filtros['per_ocu'])) {
             $this->where('unidad_economica.per_ocu', $filtros['per_ocu']);
         }
-
-        // 4. Buscador General (Texto libre)
         if (!empty($filtros['q'])) {
             $this->groupStart()
                 ->like('unidad_economica.nom_estab', $filtros['q'])
                 ->orLike('unidad_economica.raz_social', $filtros['q'])
                 ->groupEnd();
+        }
+        if (!empty($filtros['cve_ent'])) {
+            $this->where('entidad_federativa.cve_ent', $filtros['cve_ent']);
         }
 
         return $this;
