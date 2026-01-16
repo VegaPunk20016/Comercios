@@ -110,7 +110,7 @@ class ActividadController extends ResourceController
                 }
                 $currentLevel = &$tree[$subKey]['Children'];
             } else {
-                $currentLevel = &$tree; 
+                $currentLevel = &$tree;
             }
 
             if (in_array($startLevel, ['sector', 'subsector'])) {
@@ -148,7 +148,8 @@ class ActividadController extends ResourceController
         return $this->reindexTree($tree);
     }
 
-    private function reindexTree($node) {
+    private function reindexTree($node)
+    {
         $result = array_values($node);
         foreach ($result as &$item) {
             if (isset($item['Children']) && is_array($item['Children'])) {
@@ -167,17 +168,21 @@ class ActividadController extends ResourceController
             }
 
             $nivel = strtolower($nivel);
+            $claveOriginal = $clave;
 
             if ($nivel === 'sector') {
                 if (in_array($clave, ['31', '32', '33'])) $clave = '31-33';
                 if (in_array($clave, ['48', '49'])) $clave = '48-49';
             }
-
+            
             $query = $this->model;
 
             switch ($nivel) {
                 case 'sector':
                     $query->where('sector_cve', $clave);
+                    if ($claveOriginal !== $clave) {
+                        $query->like('codigo_act', $claveOriginal, 'after');
+                    }
                     break;
                 case 'subsector':
                     $query->where('subsector_cve', $clave);
@@ -191,7 +196,7 @@ class ActividadController extends ResourceController
                 default:
                     return $this->fail('Nivel no válido. Use: sector, subsector, rama, subrama', 400);
             }
-            $flatData = $query->findAll(2000); 
+            $flatData = $query->findAll(2000);
 
             if (empty($flatData)) {
                 return $this->failNotFound('No se encontraron registros para esa jerarquía.');
@@ -205,7 +210,6 @@ class ActividadController extends ResourceController
                 'clave_busqueda' => $clave,
                 'data' => $tree
             ]);
-
         } catch (\Exception $e) {
             return $this->failServerError($e->getMessage());
         }
