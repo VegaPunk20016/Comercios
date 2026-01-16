@@ -24,6 +24,4 @@ class ActividadModel extends Model
         'subrama_nom',
     ];
 
-    protected bool $allowEmptyInserts = false;
-    protected bool $updateOnlyChanged = true;
 }

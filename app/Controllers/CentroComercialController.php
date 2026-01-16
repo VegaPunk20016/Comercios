@@ -10,17 +10,14 @@ class CentroComercialController extends ResourceController
 
     public function index()
     {
-        set_time_limit(120);
         try {
             $limite = $this->request->getVar('limit') ?? 10;
             if ($limite > 100) {
                 $limite = 100;
             }
             $pagina = $this->request->getVar('page') ?? 1;
-
             $centro = $this->model->paginate($limite);
             $paginacion = $this->model->pager;
-
             return $this->respond([
                 'data' => $centro,
                 'meta' => [
@@ -64,6 +61,27 @@ class CentroComercialController extends ResourceController
         } catch (\Exception $e) {
             log_message('error', 'Error en CentroComercialController::show: ' . $e->getMessage());
             return $this->failServerError('Ocurrió un error al obtener la solicitud al recurso de centro comercial');
+        }
+    }
+
+    public function buscar()
+    {
+        try {
+            $query = $this->request->getVar('q');
+            if (!$query) {
+                return $this->respond(['status' => 200, 'data' => []]);
+            }
+
+            $data = $this->model->like('nom_CenCom', $query)
+                                ->orLike('tipoCenCom', $query)
+                                ->findAll(10); // Limitamos a 10 para autocompletado rápido
+
+            return $this->respond([
+                'status' => 200,
+                'data'   => $data
+            ]);
+        } catch (\Exception $e) {
+            return $this->failServerError($e->getMessage());
         }
     }
 }

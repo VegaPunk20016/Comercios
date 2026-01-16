@@ -28,4 +28,15 @@ class DomicilioModel extends Model
         'id_localidad',
     ];
 
+    //Relaciones de domicilio con dif tablas
+    public function withRelaciones()
+    {
+        $this->select('domicilio.*');
+        $this->select('localidad.localidad as loc_nombre, localidad.ageb as loc_ageb');
+        $this->join('localidad', 'localidad.id_localidad = domicilio.id_localidad', 'left');
+        $this->select('centro_comercial.tipoCenCom as cc_tipo, centro_comercial.nom_CenCom as cc_nombre');
+        $this->join('centro_comercial', 'centro_comercial.id_centro_comercial = domicilio.id_centro_comercial', 'left');
+        return $this; 
+    }
+
 }

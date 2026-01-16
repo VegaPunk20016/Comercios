@@ -22,15 +22,17 @@ class Domicilio extends Entity implements \JsonSerializable
         'IdCentroComercial' => 'id_centro_comercial',
         'IdLocalidad' => 'id_localidad',
     ];
+    public $Localidad = null;
+    public $CentroComercial = null;
+
     
    public function jsonSerialize(): array
     {
-        $data = parent::jsonSerialize(); 
-        $mappedData = [];
+       $mappedData = parent::jsonSerialize();
 
         $reverseMap = array_flip($this->datamap);
 
-        foreach ($data as $dbKey => $value) {
+        foreach ($mappedData as $dbKey => $value) {
             if (array_key_exists($dbKey, $reverseMap)) {
                 $cleanKey = $reverseMap[$dbKey];
                 $mappedData[$cleanKey] = $value;
@@ -39,6 +41,15 @@ class Domicilio extends Entity implements \JsonSerializable
             }
         }
 
+        if (!empty($this->Localidad)) {
+            $mappedData['Localidad'] = $this->Localidad;
+        }
+        if (!empty($this->CentroComercial)) {
+            $mappedData['CentroComercial'] = $this->CentroComercial;
+        }
+        if (isset($mappedData['CheckList'])) {
+            $mappedData['CheckList'] = filter_var($mappedData['CheckList'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? false;
+        }
         if (isset($mappedData['CheckList'])) {
             $mappedData['CheckList'] = filter_var($mappedData['CheckList'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? false;
         }

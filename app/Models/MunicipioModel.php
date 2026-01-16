@@ -15,5 +15,14 @@ class MunicipioModel extends Model
     protected $allowedFields    = [
         'cve_mun',
         'municipio',
+        'id_entidad'
     ];
+
+    public function withEntidad()
+    {
+        $this->select('municipio.*');
+        $this->select('entidad_federativa.entidad as ent_nombre, entidad_federativa.cve_ent as ent_clave');
+        $this->join('entidad_federativa', 'entidad_federativa.id_entidad = municipio.id_entidad', 'left');
+        return $this;
+    }
 }

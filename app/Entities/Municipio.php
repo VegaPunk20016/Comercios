@@ -10,29 +10,18 @@ class Municipio extends Entity implements \JsonSerializable
         'IdMunicipio' => 'id_municipio',
         'ClaveMunicipio' => 'cve_mun',
         'NombreMunicipio' => 'municipio',
-        'IdEntidad' => 'id_identidad',
+        'IdEntidad' => 'id_entidad',
     ];
-    
-   public function jsonSerialize(): array
+    public $Entidad = null;
+
+    public function jsonSerialize(): array
     {
-        $data = parent::jsonSerialize(); 
-        $mappedData = [];
+        $mappedData = parent::jsonSerialize();
 
-        $reverseMap = array_flip($this->datamap);
-
-        foreach ($data as $dbKey => $value) {
-            if (array_key_exists($dbKey, $reverseMap)) {
-                $cleanKey = $reverseMap[$dbKey];
-                $mappedData[$cleanKey] = $value;
-            } else {
-                $mappedData[$dbKey] = $value;
-            }
+        if (!empty($this->Entidad)) {
+            $mappedData['Entidad'] = $this->Entidad;
         }
 
-        if (isset($mappedData['CheckList'])) {
-            $mappedData['CheckList'] = filter_var($mappedData['CheckList'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? false;
-        }
-
-        return $mappedData; 
+        return $mappedData;
     }
 }

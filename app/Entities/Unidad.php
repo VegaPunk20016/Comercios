@@ -22,27 +22,26 @@ class Unidad extends Entity implements \JsonSerializable
         'longitud' => 'longitud',
         'idDomicilio' => 'id_domicilio'
     ];
+
+    public $Actividad = null;
+    public $Domicilio = null;
+    public $EstratoPersonal = null;
     
-    public function jsonSerialize(): array
+  public function jsonSerialize(): array
     {
-        $data = parent::jsonSerialize(); 
-        $mappedData = [];
+        $mappedData = parent::jsonSerialize();
 
-        $reverseMap = array_flip($this->datamap);
-
-        foreach ($data as $dbKey => $value) {
-            if (array_key_exists($dbKey, $reverseMap)) {
-                $cleanKey = $reverseMap[$dbKey];
-                $mappedData[$cleanKey] = $value;
-            } else {
-                $mappedData[$dbKey] = $value;
-            }
+        // Inyectamos las relaciones si existen
+        if (!empty($this->Actividad)) {
+            $mappedData['Actividad'] = $this->Actividad;
+        }
+        if (!empty($this->Domicilio)) {
+            $mappedData['Domicilio'] = $this->Domicilio;
+        }
+        if (!empty($this->EstratoPersonal)) {
+            $mappedData['EstratoPersonal'] = $this->EstratoPersonal;
         }
 
-        if (isset($mappedData['CheckList'])) {
-            $mappedData['CheckList'] = filter_var($mappedData['CheckList'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? false;
-        }
-
-        return $mappedData; 
+        return $mappedData;
     }
 }

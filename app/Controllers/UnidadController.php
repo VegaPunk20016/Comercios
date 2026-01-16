@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Controllers;
+
 use CodeIgniter\RESTful\ResourceController;
 
 class UnidadController extends ResourceController
@@ -8,9 +9,51 @@ class UnidadController extends ResourceController
     protected $modelName = 'App\Models\UnidadModel';
     protected $format    = 'json';
 
+    private function hydrateUnidad($ue)
+    {
+        if (!empty($ue->CodigoActividad)) {
+            $ue->Actividad = [
+                'Codigo' => $ue->CodigoActividad,
+                'Nombre' => $ue->act_nombre ?? 'N/A'
+            ];
+        }
+        if (!empty($ue->PersonalOcupado)) {
+            $ue->EstratoPersonal = $ue->per_desc ?? $ue->PersonalOcupado;
+        }
+        if (!empty($ue->IdDomicilio)) {
+
+            $entidadObj = [
+                'Nombre' => $ue->ent_nombre ?? 'N/A',
+                'Clave'  => $ue->ent_clave ?? null
+            ];
+            $municipioObj = [
+                'Nombre'  => $ue->mun_nombre ?? 'N/A',
+                'Entidad' => $entidadObj // Anidamos Entidad
+            ];
+            $localidadObj = [
+                'Nombre'    => $ue->loc_nombre ?? 'N/A',
+                'Municipio' => $municipioObj // Anidamos Municipio
+            ];
+            $centroComercialObj = null;
+            if (!empty($ue->cc_nombre)) {
+                $centroComercialObj = ['Nombre' => $ue->cc_nombre];
+            }
+            $ue->Domicilio = [
+                'Id'              => $ue->IdDomicilio,
+                'Calle'           => $ue->nom_vial ?? '',
+                'Numero'          => $ue->numero_ext ?? '',
+                'Colonia'         => $ue->nomb_asent ?? '',
+                'CP'              => $ue->cod_postal ?? '',
+                'Localidad'       => $localidadObj, // Anidamos Localidad
+                'CentroComercial' => $centroComercialObj
+            ];
+        }
+        return $ue;
+    }
+
     public function index()
     {
-        set_time_limit(120);
+        set_time_limit(180);
         try {
             $limite = $this->request->getVar('limit') ?? 10;
             if ($limite > 100) {
@@ -18,9 +61,12 @@ class UnidadController extends ResourceController
             }
             $pagina = $this->request->getVar('page') ?? 1;
 
-            $unidades = $this->model->paginate($limite);
+            $unidades = $this->model->withAllData()->paginate($limite);
             $paginacion = $this->model->pager;
 
+            foreach ($unidades as $item) {
+                $this->hydrateUnidad($item);
+            }
             return $this->respond([
                 'data' => $unidades,
                 'meta' => [
@@ -47,9 +93,8 @@ class UnidadController extends ResourceController
 
     public function show($id = null)
     {
-        set_time_limit(120);
         try {
-            $unidad = $this->model->find($id);
+            $unidad = $this->model->withAllData()->find($id);
 
             if (!$unidad) {
                 return $this->failNotFound('No se encontró la unidad con ID: ' . $id);

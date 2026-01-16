@@ -14,27 +14,16 @@ class Localidad extends Entity implements \JsonSerializable
         'Manzana' => 'manzana',
         'IdMunicipio' => 'id_municipio',
     ];
-    
+    public $Municipio = null;
+
     public function jsonSerialize(): array
     {
-        $data = parent::jsonSerialize(); 
-        $mappedData = [];
+        $mappedData = parent::jsonSerialize();
 
-        $reverseMap = array_flip($this->datamap);
-
-        foreach ($data as $dbKey => $value) {
-            if (array_key_exists($dbKey, $reverseMap)) {
-                $cleanKey = $reverseMap[$dbKey];
-                $mappedData[$cleanKey] = $value;
-            } else {
-                $mappedData[$dbKey] = $value;
-            }
+        if (!empty($this->Municipio)) {
+            $mappedData['Municipio'] = $this->Municipio;
         }
 
-        if (isset($mappedData['CheckList'])) {
-            $mappedData['CheckList'] = filter_var($mappedData['CheckList'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? false;
-        }
-
-        return $mappedData; 
+        return $mappedData;
     }
 }

@@ -1,5 +1,6 @@
 <?php
 
+use CodeIgniter\Commands\Utilities\Routes;
 use CodeIgniter\Router\RouteCollection;
 
 /**
@@ -7,42 +8,63 @@ use CodeIgniter\Router\RouteCollection;
  */
 $routes->get('/', 'Home::index');
 
-$routes->resource('api/actividad', [
-    'controller' => 'ActividadController',
-    'only' => ['index', 'show']
-]);
+$routes->group('api', ['namespace' => 'App\Controllers'], function ($routes) {
 
-$routes->resource('api/entidadFederativa', [
-    'controller' => 'EntidadFederativaController',
-    'only' => ['index', 'show']
-]);
+    #Actividad
 
-$routes->resource('api/municipio', [
-    'controller' => 'MunicipioController',
-    'only' => ['index', 'show']
-]);
+    $routes->get('actividad/buscar', 'ActividadController::buscar');
+    $routes->get('actividad/arbol/(:segment)/(:segment)', 'ActividadController::getArbol/$1/$2');
+    $routes->resource('actividad', [
+        'controller' => 'ActividadController',
+        'only' => ['index', 'show']
+    ]);
 
-$routes->resource('api/localidad', [
-    'controller' => 'LocalidadController',
-    'only' => ['index', 'show']
-]);
+    #EntidadFederativa
+    $routes->get('municipio/por-entidad/(:num)', 'MunicipioController::getByEntidad/$1');
+    $routes->resource('entidadFederativa', [
+        'controller' => 'EntidadFederativaController',
+        'only' => ['index', 'show']
+    ]);
+    #Municipio
+    $routes->get('municipiosPorEntidad/(:segment)', 'MunicipioController::getByEntidad/$1');
+    $routes->resource('municipio', [
+        'controller' => 'MunicipioController',
+        'only' => ['index', 'show']
+    ]);
 
-$routes->resource('api/domicilio', [
-    'controller' => 'DomicilioController',
-    'only' => ['index', 'show']
-]);
+    #Localidad
+    $routes->get('localidad/municipio/(:num)', 'LocalidadController::getByMunicipio/$1');
+    $routes->get('localidad/ageb/(:segment)', 'LocalidadController::flitrarAgeb/$1');
+    $routes->get('localidad/manzana/(:segment)', 'LocalidadController::filtrarManzana/$1');
+    $routes->get('localidad/filtro/(:segment)/(:segment)', 'LocalidadController::filtrarAgebManzana/$1/$2');
+    $routes->resource('localidad', [
+        'controller' => 'LocalidadController',
+        'only' => ['index', 'show']
+    ]);
 
-$routes->resource('api/personal', [
-    'controller' => 'PersonalController',
-    'only' => ['index', 'show']
-]);
+    #Domicilio
+    $routes->get('domicilio/cp/(:segment)', 'DomicilioController::showByCodPost/$1');
+    $routes->resource('domicilio', [
+        'controller' => 'DomicilioController',
+        'only' => ['index', 'show']
+    ]);
 
-$routes->resource('api/unidad', [
-    'controller' => 'UnidadController',
-    'only' => ['index', 'show']
-]);
+    #Personal
+    $routes->resource('personal', [
+        'controller' => 'PersonalController',
+        'only' => ['index', 'show']
+    ]);
 
-$routes->resource('api/centrocomercial', [
-    'controller' => 'CentroComercialController',
-    'only' => ['index', 'show']
-]);
+    #Unidad 
+    $routes->resource('unidad', [
+        'controller' => 'UnidadController',
+        'only' => ['index', 'show']
+    ]);
+
+    #CentroComercial
+    $routes->get('centrocomercial/buscar', 'CentroComercialController::buscar');
+    $routes->resource('centrocomercial', [
+        'controller' => 'CentroComercialController',
+        'only' => ['index', 'show']
+    ]);
+});
