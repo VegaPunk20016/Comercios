@@ -14,4 +14,11 @@ class PersonalModel extends Model
     protected $protectFields    = true;
     protected $allowedFields    = [
     ];
+
+    public function scopeBuscar($termino)
+    {
+        return $this->groupStart()
+            ->like('per_ocu', $termino) 
+            ->groupEnd();
+    }
 }

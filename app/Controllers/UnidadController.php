@@ -45,24 +45,23 @@ class UnidadController extends ResourceController
             // Objeto Localidad (¡Ahora con AGEB y Manzana!)
             $localidadObj = [
                 'Nombre'    => $ue->loc_nombre ?? 'N/A',
-                'AGEB'      => $ue->ageb ?? null,      // Nuevo
-                'Manzana'   => $ue->manzana ?? null,   // Nuevo
                 'Municipio' => $municipioObj
             ];
 
             // Objeto Centro Comercial
             $centroComercialObj = null;
-            if (!empty($ue->centrocomercial_nombre)) { // Corregido: usaba cc_nombre, en el modelo es centrocomercial_nombre
+            if (!empty($ue->centrocomercial_nombre)) {
                 $centroComercialObj = ['Nombre' => $ue->centrocomercial_nombre];
             }
 
-            // Armado final del Domicilio
             $ue->Domicilio = [
                 'Id'              => $ue->IdDomicilio,
                 'Calle'           => $ue->nom_vial ?? '',
                 'Numero'          => $ue->numero_ext ?? '',
                 'Colonia'         => $ue->nomb_asent ?? '',
                 'CP'              => $ue->cod_postal ?? '',
+                'AGEB'            => $ue->ageb ?? '',      
+                'Manzana'         => $ue->manzana ?? '',   
                 'Localidad'       => $localidadObj,
                 'CentroComercial' => $centroComercialObj
             ];
@@ -86,11 +85,11 @@ class UnidadController extends ResourceController
                 'ageb'         => $this->request->getVar('ageb'),
                 'manzana'      => $this->request->getVar('manzana'),
                 'clee'         => $this->request->getVar('clee'),
-                'actividad'    => $this->request->getVar('actividad'), // Código SCIAN
-                'nombre'       => $this->request->getVar('nombre'),       // nom_estab
-                'razon_social' => $this->request->getVar('razon_social'), // raz_social
-                'fecha_alta'   => $this->request->getVar('fecha_alta'),   // YYYY-MM-DD
-                'per_ocu'      => $this->request->getVar('per_ocu'),      // Código de estrato (ej. 0 a 5)
+                'actividad'    => $this->request->getVar('actividad'), 
+                'nombre'       => $this->request->getVar('nombre'),       
+                'razon_social' => $this->request->getVar('razon_social'), 
+                'fecha_alta'   => $this->request->getVar('fecha_alta'),   
+                'per_ocu'      => $this->request->getVar('per_ocu'),      
                 'q'            => $this->request->getVar('q')
             ];
             $unidades = $this->model

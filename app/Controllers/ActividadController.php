@@ -11,36 +11,26 @@ class ActividadController extends ResourceController
 
     public function index()
     {
-        set_time_limit(120);
         try {
-            $limite = $this->request->getVar('limit') ?? 10;
-            if ($limite > 100) {
-                $limite = 100;
-            }
-            $pagina = $this->request->getVar('page') ?? 1;
-            $actividad = $this->model->paginate($limite);
-            $paginacion = $this->model->pager;
+            $limit = min((int)($this->request->getVar('limit') ?? 10), 100);
+            $page  = (int)($this->request->getVar('page') ?? 1);          
+            $data = $this->model->paginate($limit);
             return $this->respond([
-                'data' => $actividad,
-                'meta' => [
-                    'total' => $paginacion->getTotal(),
-                    'per_page' => $limite,
-                    'current_page' => $pagina,
-                    'total_pages' => $paginacion->getPageCount()
+                'status' => 200,
+                'data'   => $data,
+                'meta'   => [
+                    'total'        => $this->model->pager->getTotal(),
+                    'per_page'     => $limit,
+                    'current_page' => $page,
+                    'total_pages'  => $this->model->pager->getPageCount()
                 ],
                 'links' => [
-                    'first' => $paginacion->getPageURI(1),
-                    'last' => $paginacion->getPageURI($paginacion->getPageCount()),
-                    'prev' => ($pagina > 1) ? $paginacion->getPageURI($pagina - 1) : null,
-                    'next' => ($pagina < $paginacion->getPageCount()) ? $paginacion->getPageURI($pagina + 1) : null
+                    'next' => $this->model->pager->getNextPageURI(),
+                    'prev' => $this->model->pager->getPreviousPageURI()
                 ]
             ]);
-        } catch (\mysqli_sql_exception $e) {
-            log_message('critical', $e->getMessage());
-            return $this->failServerError('Error crítico en la base de datos.');
         } catch (\Exception $e) {
-            log_message('error', 'Error en ActividadController::index: ' . $e->getMessage());
-            return $this->failServerError('Ocurrió un error al obtener los registros de Actividad');
+            return $this->failServerError($e->getMessage());
         }
     }
 
@@ -50,19 +40,12 @@ class ActividadController extends ResourceController
             $actividad = $this->model->find($id);
 
             if (!$actividad) {
-                return $this->failNotFound('No se encontró la actividad con ID: ' . $id);
+                return $this->failNotFound("No se encontró la actividad con ID: $id");
             }
 
-            return $this->respond([
-                'status' => 200,
-                'data' => $actividad
-            ]);
-        } catch (\mysqli_sql_exception $e) {
-            log_message('critical', $e->getMessage());
-            return $this->failServerError('Error crítico en la base de datos.');
+            return $this->respond(['status' => 200, 'data' => $actividad]);
         } catch (\Exception $e) {
-            log_message('error', 'Error en ActividadController::show: ' . $e->getMessage());
-            return $this->failServerError('Ocurrió un error al obtener la solicitud al recurso de Actividad');
+            return $this->failServerError($e->getMessage());
         }
     }
 
@@ -73,145 +56,124 @@ class ActividadController extends ResourceController
             if (!$query) {
                 return $this->fail('Se requiere un término de búsqueda (q).', 400);
             }
-
-            $data = $this->model->groupStart()
-                ->like('nombre_act', $query)
-                ->orLike('sector_nom', $query)
-                ->orLike('rama_nom', $query)
-                ->groupEnd()
-                ->paginate(20);
-
+            $data = $this->model->scopeBuscar($query)->paginate(20);
             return $this->respond([
                 'status' => 200,
                 'data'   => $data,
-                'meta'   => [
-                    'total' => $this->model->pager->getTotal()
-                ]
+                'meta'   => ['total' => $this->model->pager->getTotal()]
             ]);
         } catch (\Exception $e) {
             return $this->failServerError($e->getMessage());
         }
     }
 
-    private function buildTree(array $flatData, $startLevel = 'sector')
+    public function getArbol($nivel = null, $clave = null)
+    {
+        ini_set('memory_limit', '256M'); 
+        try {
+            if (!$nivel || !$clave) {
+                return $this->fail('Faltan parámetros: nivel y clave.', 400);
+            }
+
+            $nivel = strtolower($nivel);
+            $claveOriginal = $clave;
+            $mapaSectores = [
+                '31' => '31-33',
+                '32' => '31-33',
+                '33' => '31-33',
+                '48' => '48-49',
+                '49' => '48-49'
+            ];
+
+            if ($nivel === 'sector' && isset($mapaSectores[$clave])) {
+                $clave = $mapaSectores[$clave];
+            }
+
+            $nivelesPermitidos = ['sector', 'subsector', 'rama', 'subrama'];
+            if (!in_array($nivel, $nivelesPermitidos)) {
+                return $this->fail('Nivel no válido.', 400);
+            }
+            $columna = $nivel . '_cve';
+            $this->model->where($columna, $clave);
+            if ($nivel === 'sector' && $claveOriginal !== $clave) {
+                $this->model->like('codigo_act', $claveOriginal, 'after');
+            }
+            $flatData = $this->model->findAll(2000);
+            if (empty($flatData)) {
+                return $this->failNotFound('No hay datos para esta jerarquía.');
+            }
+            $tree = $this->buildTree($flatData, $nivel);
+            return $this->respond([
+                'status' => 200,
+                'meta'   => [
+                    'nivel' => $nivel,
+                    'clave_solicitada' => $claveOriginal,
+                    'clave_bd' => $clave
+                ],
+                'data'   => $tree
+            ]);
+        } catch (\Exception $e) {
+            return $this->failServerError($e->getMessage());
+        }
+    }
+
+    private function buildTree(array $flatData, $startLevel)
     {
         $tree = [];
-
         foreach ($flatData as $row) {
+            $currentLevel = &$tree;
+
             if ($startLevel === 'sector') {
-                $subKey = $row->subsector_cve;
-                if (!isset($tree[$subKey])) {
-                    $tree[$subKey] = [
-                        'Clave'  => $row->subsector_cve,
-                        'Nombre' => $row->subsector_nom,
-                        'Type'   => 'Subsector',
-                        'Children' => []
-                    ];
+                $k = $row->subsector_cve;
+                if (!isset($tree[$k])) {
+                    $tree[$k] = $this->makeNode($k, $row->subsector_nom, 'Subsector');
                 }
-                $currentLevel = &$tree[$subKey]['Children'];
-            } else {
-                $currentLevel = &$tree;
+                $currentLevel = &$tree[$k]['Children'];
             }
 
             if (in_array($startLevel, ['sector', 'subsector'])) {
-                $ramaKey = $row->rama_cve;
-                if (!isset($currentLevel[$ramaKey])) {
-                    $currentLevel[$ramaKey] = [
-                        'Clave'  => $row->rama_cve,
-                        'Nombre' => $row->rama_nom,
-                        'Type'   => 'Rama',
-                        'Children' => []
-                    ];
+                $k = $row->rama_cve;
+                if (!isset($currentLevel[$k])) {
+                    $currentLevel[$k] = $this->makeNode($k, $row->rama_nom, 'Rama');
                 }
-                $currentLevel = &$currentLevel[$ramaKey]['Children'];
+                $currentLevel = &$currentLevel[$k]['Children'];
             }
 
             if ($startLevel !== 'subrama') {
-                $subramaKey = $row->subrama_cve;
-                if (!isset($currentLevel[$subramaKey])) {
-                    $currentLevel[$subramaKey] = [
-                        'Clave'  => $row->subrama_cve,
-                        'Nombre' => $row->subrama_nom,
-                        'Type'   => 'Subrama',
-                        'Children' => []
-                    ];
+                $k = $row->subrama_cve;
+                if (!isset($currentLevel[$k])) {
+                    $currentLevel[$k] = $this->makeNode($k, $row->subrama_nom, 'Subrama');
                 }
-                $currentLevel = &$currentLevel[$subramaKey]['Children'];
+                $currentLevel = &$currentLevel[$k]['Children'];
             }
 
-            $currentLevel[] = [
-                'Clave'  => $row->codigo_act,
-                'Nombre' => $row->nombre_act,
-                'Type'   => 'Actividad'
-            ];
+            $currentLevel[] = $this->makeNode($row->codigo_act, $row->nombre_act, 'Actividad', false);
         }
+
         return $this->reindexTree($tree);
+    }
+
+    private function makeNode($clave, $nombre, $type, $hasChildren = true)
+    {
+        $node = [
+            'Clave'  => $clave,
+            'Nombre' => $nombre,
+            'Type'   => $type
+        ];
+        if ($hasChildren) {
+            $node['Children'] = [];
+        }
+        return $node;
     }
 
     private function reindexTree($node)
     {
         $result = array_values($node);
         foreach ($result as &$item) {
-            if (isset($item['Children']) && is_array($item['Children'])) {
+            if (isset($item['Children'])) {
                 $item['Children'] = $this->reindexTree($item['Children']);
             }
         }
         return $result;
-    }
-
-    public function getArbol($nivel = null, $clave = null)
-    {
-        ini_set('memory_limit', '256M');
-        try {
-            if (!$nivel || !$clave) {
-                return $this->fail('Se requiere el nivel (sector, subsector, rama) y la clave.', 400);
-            }
-
-            $nivel = strtolower($nivel);
-            $claveOriginal = $clave;
-
-            if ($nivel === 'sector') {
-                if (in_array($clave, ['31', '32', '33'])) $clave = '31-33';
-                if (in_array($clave, ['48', '49'])) $clave = '48-49';
-            }
-            
-            $query = $this->model;
-
-            switch ($nivel) {
-                case 'sector':
-                    $query->where('sector_cve', $clave);
-                    if ($claveOriginal !== $clave) {
-                        $query->like('codigo_act', $claveOriginal, 'after');
-                    }
-                    break;
-                case 'subsector':
-                    $query->where('subsector_cve', $clave);
-                    break;
-                case 'rama':
-                    $query->where('rama_cve', $clave);
-                    break;
-                case 'subrama':
-                    $query->where('subrama_cve', $clave);
-                    break;
-                default:
-                    return $this->fail('Nivel no válido. Use: sector, subsector, rama, subrama', 400);
-            }
-            $flatData = $query->findAll(2000);
-
-            if (empty($flatData)) {
-                return $this->failNotFound('No se encontraron registros para esa jerarquía.');
-            }
-
-            $tree = $this->buildTree($flatData, $nivel);
-
-            return $this->respond([
-                'status' => 200,
-                'nivel_busqueda' => $nivel,
-                'clave_busqueda' => $clave,
-                'data' => $tree
-            ]);
-        } catch (\Exception $e) {
-            return $this->failServerError($e->getMessage());
-        }
     }
 }

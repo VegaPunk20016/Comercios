@@ -11,13 +11,16 @@ class EntidadFederativaController extends ResourceController
 
     public function index()
     {
-        set_time_limit(120);
         try {
+            $query = $this->request->getVar('q');
+            if ($query) {
+                $this->model->scopeBuscar($query);
+            }
             $data = $this->model->findAll();
 
             return $this->respond([
                 'status' => 200,
-                'error'  => false,
+                'total'  => count($data),
                 'data'   => $data 
             ]);
         } catch (\mysqli_sql_exception $e) {
@@ -31,14 +34,12 @@ class EntidadFederativaController extends ResourceController
 
     public function show($id = null)
     {
-        set_time_limit(120);
         try {
             $solicitud = $this->model->find($id);
 
             if (!$solicitud) {
                 return $this->failNotFound('No se encontró la solicitud con ID: ' . $id);
             }
-
             return $this->respond([
                 'status' => 200,
                 'data' => $solicitud

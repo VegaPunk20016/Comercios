@@ -41,14 +41,14 @@ class UnidadModel extends Model
         $this->join('personal_ocupado', 'personal_ocupado.per_ocu = unidad_economica.per_ocu', 'left');
 
         // Relación con Domicilio
-        $this->select('domicilio.nom_vial, domicilio.numero_ext, domicilio.cod_postal, domicilio.nomb_asent');
+        $this->select('domicilio.nom_vial, domicilio.numero_ext, domicilio.cod_postal, domicilio.ageb, domicilio.manzana, domicilio.nomb_asent');
         $this->join('domicilio', 'domicilio.id_domicilio = unidad_economica.id_domicilio', 'left');
 
         // Relación con Centro Comercial
         $this->select('centro_comercial.nom_CenCom as centrocomercial_nombre');
         $this->join('centro_comercial', 'centro_comercial.id_centro_comercial = domicilio.id_centro_comercial', 'left');
 
-        $this->select('localidad.localidad as loc_nombre, localidad.id_municipio, localidad.ageb, localidad.manzana');
+        $this->select('localidad.localidad as loc_nombre, localidad.id_municipio,');
         $this->join('localidad', 'localidad.id_localidad = domicilio.id_localidad', 'left');
 
         // Relación con Municipio
@@ -73,12 +73,11 @@ class UnidadModel extends Model
             $this->where('domicilio.cod_postal', $filtros['cp']);
         }
         if (!empty($filtros['ageb'])) {
-            $this->where('localidad.ageb', $filtros['ageb']);
+            $this->where('domicilio.ageb', $filtros['ageb']);
         }
         if (!empty($filtros['manzana'])) {
-            $this->where('localidad.manzana', $filtros['manzana']);
+            $this->where('domicilio.manzana', $filtros['manzana']);
         }
-
         if (!empty($filtros['clee'])) {
             $this->where('unidad_economica.clee', $filtros['clee']);
         }

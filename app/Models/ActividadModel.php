@@ -24,4 +24,13 @@ class ActividadModel extends Model
         'subrama_nom',
     ];
 
+    public function scopeBuscar($query)
+    {
+        return $this->groupStart()
+            ->like('nombre_act', $query)
+            ->orLike('sector_nom', $query)
+            ->orLike('rama_nom', $query)
+            ->groupEnd();
+    }
+
 }

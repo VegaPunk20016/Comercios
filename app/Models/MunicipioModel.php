@@ -25,4 +25,26 @@ class MunicipioModel extends Model
         $this->join('entidad_federativa', 'entidad_federativa.id_entidad = municipio.id_entidad', 'left');
         return $this;
     }
+    public function scopeBuscar($termino, $idEntidad = null)
+    {
+        if (!empty($idEntidad)) {
+            $this->where('municipio.id_entidad', $idEntidad);
+        }
+        if (!empty($termino)) {
+            $this->like('municipio.municipio', $termino);
+        }
+        return $this;
+    }
+
+    public function getDatosArbol($cveEntidad)
+    {
+        return $this->select('municipio.cve_mun, municipio.municipio as nom_mun')
+            ->select('localidad.cve_loc, localidad.localidad as nom_loc')
+            ->join('localidad', 'localidad.id_municipio = municipio.id_municipio')
+            ->join('entidad_federativa', 'entidad_federativa.id_entidad = municipio.id_entidad')
+            ->where('entidad_federativa.cve_ent', $cveEntidad)
+            ->orderBy('municipio.cve_mun', 'ASC')
+            ->orderBy('localidad.cve_loc', 'ASC')
+            ->findAll();
+    }
 }

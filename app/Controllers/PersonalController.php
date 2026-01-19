@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Controllers;
+
 use CodeIgniter\RESTful\ResourceController;
 
 class PersonalController extends ResourceController
@@ -10,16 +11,18 @@ class PersonalController extends ResourceController
 
     public function index()
     {
-        set_time_limit(120);
         try {
             $limite = $this->request->getVar('limit') ?? 10;
             if ($limite > 100) {
                 $limite = 100;
             }
             $pagina = $this->request->getVar('page') ?? 1;
-
-            $personal = $this->model->paginate($limite);
             $paginacion = $this->model->pager;
+            $query = $this->request->getVar('q');
+            if ($query) {
+                $this->model->scopeBuscar($query);
+            }
+            $personal = $this->model->paginate($limite);
 
             return $this->respond([
                 'data' => $personal,

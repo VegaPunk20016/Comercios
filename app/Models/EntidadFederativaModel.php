@@ -16,4 +16,11 @@ class EntidadFederativaModel extends Model
         'cve_ent',
         'entidad',
     ];
+    public function scopeBuscar($termino)
+    {
+        return $this->groupStart()
+            ->like('entidad', $termino)   
+            ->orLike('cve_ent', $termino) 
+            ->groupEnd();
+    }
 }

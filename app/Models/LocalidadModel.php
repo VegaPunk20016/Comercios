@@ -15,8 +15,6 @@ class LocalidadModel extends Model
     protected $allowedFields    = [
         'cve_loc',
         'localidad',
-        'ageb',
-        'manzana',
         'id_municipio',
     ];
     public function withFullRelaciones()

@@ -18,6 +18,8 @@ class Domicilio extends Entity implements \JsonSerializable
         'TipoAsentamiento' => 'tipo_asent',
         'NombreAsentamiento' => 'nomb_asent',
         'CodigoPostal' => 'cod_postal',
+        'Ageb' => 'ageb',
+        'Manzana' => 'manzana',
         'NumeroLocal' => 'num_local',
         'IdCentroComercial' => 'id_centro_comercial',
         'IdLocalidad' => 'id_localidad',
@@ -25,10 +27,10 @@ class Domicilio extends Entity implements \JsonSerializable
     public $Localidad = null;
     public $CentroComercial = null;
 
-    
-   public function jsonSerialize(): array
+
+    public function jsonSerialize(): array
     {
-       $mappedData = parent::jsonSerialize();
+        $mappedData = parent::jsonSerialize();
 
         $reverseMap = array_flip($this->datamap);
 
@@ -54,6 +56,6 @@ class Domicilio extends Entity implements \JsonSerializable
             $mappedData['CheckList'] = filter_var($mappedData['CheckList'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? false;
         }
 
-        return $mappedData; 
+        return $mappedData;
     }
 }

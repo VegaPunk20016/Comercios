@@ -16,4 +16,12 @@ class CentroComercialModel extends Model
         'tipoCenCom',
         'nom_CenCom',
     ];
+
+    public function scopeBuscar($termino)
+    {
+        return $this->groupStart()
+            ->like('nom_CenCom', $termino)
+            ->orLike('tipoCenCom', $termino)
+            ->groupEnd();
+    }
 }

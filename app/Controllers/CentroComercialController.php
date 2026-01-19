@@ -16,6 +16,10 @@ class CentroComercialController extends ResourceController
                 $limite = 100;
             }
             $pagina = $this->request->getVar('page') ?? 1;
+            $query = $this->request->getVar('q');
+            if ($query) {
+                $this->model->scopeBuscar($query);
+            }
             $centro = $this->model->paginate($limite);
             $paginacion = $this->model->pager;
             return $this->respond([
@@ -64,24 +68,4 @@ class CentroComercialController extends ResourceController
         }
     }
 
-    public function buscar()
-    {
-        try {
-            $query = $this->request->getVar('q');
-            if (!$query) {
-                return $this->respond(['status' => 200, 'data' => []]);
-            }
-
-            $data = $this->model->like('nom_CenCom', $query)
-                                ->orLike('tipoCenCom', $query)
-                                ->findAll(10); // Limitamos a 10 para autocompletado rápido
-
-            return $this->respond([
-                'status' => 200,
-                'data'   => $data
-            ]);
-        } catch (\Exception $e) {
-            return $this->failServerError($e->getMessage());
-        }
-    }
 }

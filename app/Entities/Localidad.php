@@ -10,8 +10,6 @@ class Localidad extends Entity implements \JsonSerializable
         'IdLocalidad' => 'id_localidad',
         'ClaveLocalidad' => 'cve_loc',
         'NombreLocalidad' => 'localidad',
-        'ExtensionTerritorial' => 'ageb',
-        'Manzana' => 'manzana',
         'IdMunicipio' => 'id_municipio',
     ];
     public $Municipio = null;
