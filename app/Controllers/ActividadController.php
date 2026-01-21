@@ -176,4 +176,56 @@ class ActividadController extends ResourceController
         }
         return $result;
     }
+
+    public function getSectoresRaiz()
+    {
+        try {
+            // Traemos todos los sectores únicos de la base de datos
+            $rawSectores = $this->model->select('sector_cve, sector_nom')
+                                    ->distinct()
+                                    ->orderBy('sector_cve', 'ASC')
+                                    ->findAll();
+
+            $sectoresProcesados = [];
+            $agrupados = [];
+
+            // Mapeo para agrupar sectores especiales (31-33, 48-49, etc.)
+            $mapaSectores = [
+                '31' => '31-33', '32' => '31-33', '33' => '31-33',
+                '48' => '48-49', '49' => '48-49'
+            ];
+
+            foreach ($rawSectores as $s) {
+                $claveOriginal = $s->sector_cve;
+                $nombreOriginal = trim($s->sector_nom);
+                
+                // Si el sector pertenece a un grupo (ej. 31 pertenece a 31-33)
+                if (isset($mapaSectores[$claveOriginal])) {
+                    $claveGrupo = $mapaSectores[$claveOriginal];
+                    
+                    // Solo lo agregamos una vez por grupo
+                    if (!isset($agrupados[$claveGrupo])) {
+                        $sectoresProcesados[] = [
+                            'Clave'  => $claveGrupo,
+                            'Nombre' => $nombreOriginal
+                        ];
+                        $agrupados[$claveGrupo] = true;
+                    }
+                } else {
+                    // Sectores normales (ej. 11, 21)
+                    $sectoresProcesados[] = [
+                        'Clave'  => $claveOriginal,
+                        'Nombre' => $nombreOriginal
+                    ];
+                }
+            }
+
+            return $this->respond([
+                'status' => 200,
+                'data'   => $sectoresProcesados
+            ]);
+        } catch (\Exception $e) {
+            return $this->failServerError($e->getMessage());
+        }
+    }
 }

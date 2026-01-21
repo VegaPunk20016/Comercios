@@ -11,6 +11,7 @@ $routes->get('/', 'Home::index');
 $routes->group('api', ['namespace' => 'App\Controllers'], function ($routes) {
 
     #Actividad
+    $routes->get('actividad/sectores', 'ActividadController::getSectoresRaiz'); // <-- Agrega esta línea
     $routes->get('actividad/arbol/(:segment)/(:segment)', 'ActividadController::getArbol/$1/$2');
     $routes->resource('actividad', [
         'controller' => 'ActividadController',

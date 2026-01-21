@@ -95,6 +95,7 @@ class MunicipioController extends ResourceController
                 $claveMun = $row->cve_mun;
                 if (!isset($arbol[$claveMun])) {
                     $arbol[$claveMun] = [
+                        'Id'          => $cveEntidad . $row->cve_mun, // ID Único para municipio
                         'Clave'       => $row->cve_mun,  
                         'Nombre'      => $row->nom_mun,
                         'Type'        => 'Municipio',
@@ -103,7 +104,12 @@ class MunicipioController extends ResourceController
                 }
 
                 if ($row->cve_loc) {
+                    // GENERACIÓN DE ID ÚNICO GLOBAL PARA LOCALIDAD
+                    // Esto evita que "0001" de un municipio se confunda con "0001" de otro
+                    $idUnicoLoc = $cveEntidad . $row->cve_mun . $row->cve_loc;
+
                     $arbol[$claveMun]['Localidades'][] = [
+                        'Id'     => $idUnicoLoc, // Usamos este para el checkbox
                         'Clave'  => $row->cve_loc,      
                         'Nombre' => $row->nom_loc,
                         'Type'   => 'Localidad'
