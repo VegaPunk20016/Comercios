@@ -12,39 +12,24 @@ class PersonalController extends ResourceController
     public function index()
     {
         try {
-            $limite = $this->request->getVar('limit') ?? 10;
-            if ($limite > 100) {
-                $limite = 100;
-            }
+            $limite = $this->request->getVar('limit') ?? 20; // Subimos a 20 para ver todos
             $pagina = $this->request->getVar('page') ?? 1;
+
+            // IMPORTANTE: Usar 'per_ocu' que es la columna real en la DB
+            $personal = $this->model
+                ->orderBy('CAST(per_ocu AS UNSIGNED)', 'ASC')
+                ->paginate($limite, 'default', $pagina);
+
             $paginacion = $this->model->pager;
-            $query = $this->request->getVar('q');
-            if ($query) {
-                $this->model->scopeBuscar($query);
-            }
-            $personal = $this->model->paginate($limite);
 
             return $this->respond([
                 'data' => $personal,
                 'meta' => [
-                    'total' => $paginacion->getTotal(),
-                    'per_page' => $limite,
-                    'current_page' => $pagina,
-                    'total_pages' => $paginacion->getPageCount()
-                ],
-                'links' => [
-                    'first' => $paginacion->getPageURI(1),
-                    'last' => $paginacion->getPageURI($paginacion->getPageCount()),
-                    'prev' => ($pagina > 1) ? $paginacion->getPageURI($pagina - 1) : null,
-                    'next' => ($pagina < $paginacion->getPageCount()) ? $paginacion->getPageURI($pagina + 1) : null
+                    'total' => $paginacion->getTotal()
                 ]
             ]);
-        } catch (\mysqli_sql_exception $e) {
-            log_message('critical', $e->getMessage());
-            return $this->failServerError('Error crítico en la base de datos.');
         } catch (\Exception $e) {
-            log_message('error', 'Error en PersonalController::index: ' . $e->getMessage());
-            return $this->failServerError('Ocurrió un error al obtener los registros de personal');
+            return $this->failServerError($e->getMessage());
         }
     }
 
