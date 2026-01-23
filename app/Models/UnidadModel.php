@@ -65,10 +65,37 @@ class UnidadModel extends Model
 
     public function aplicarFiltros($filtros)
     {
-        // 1. Filtros Geográficos
-        if (!empty($filtros['municipio'])) {
-            $this->where('municipio.id_municipio', $filtros['municipio']);
+        // 1. Filtro por Entidad
+        if (!empty($filtros['cve_ent'])) {
+            $this->where('entidad_federativa.cve_ent', $filtros['cve_ent']);
         }
+
+        // 2. Filtro por Municipios (Múltiple)
+        if (!empty($filtros['municipio'])) {
+            $municipios = explode(',', $filtros['municipio']);
+            $this->whereIn('municipio.id_municipio', $municipios);
+        }
+
+        // 3. Filtro por Localidades (Múltiple) - Agregado para soportar el front
+        if (!empty($filtros['localidad'])) {
+            $localidades = explode(',', $filtros['localidad']);
+            $this->whereIn('localidad.id_localidad', $localidades);
+        }
+
+        // 4. Filtro por Actividades SCIAN (Múltiple)
+        if (!empty($filtros['actividad'])) {
+            $actividades = explode(',', $filtros['actividad']);
+            // Usamos whereIn para códigos exactos múltiples
+            $this->whereIn('unidad_economica.codigo_act', $actividades);
+        }
+
+        // 5. Filtro por Personal Ocupado (Múltiple)
+        if (!empty($filtros['per_ocu'])) {
+            $estratos = explode(',', $filtros['per_ocu']);
+            $this->whereIn('unidad_economica.per_ocu', $estratos);
+        }
+
+        // 6. Filtros de coincidencia exacta (AGEB, Manzana, CP)
         if (!empty($filtros['cp'])) {
             $this->where('domicilio.cod_postal', $filtros['cp']);
         }
@@ -78,34 +105,15 @@ class UnidadModel extends Model
         if (!empty($filtros['manzana'])) {
             $this->where('domicilio.manzana', $filtros['manzana']);
         }
-        if (!empty($filtros['clee'])) {
-            $this->where('unidad_economica.clee', $filtros['clee']);
-        }
-        if (!empty($filtros['actividad'])) {
-            // 'after' permite buscar "46" y traer todo el sector
-            $this->like('unidad_economica.codigo_act', $filtros['actividad'], 'after');
-        }
-        if (!empty($filtros['nombre'])) {
-            // like %nombre%
-            $this->like('unidad_economica.nom_estab', $filtros['nombre']);
-        }
-        if (!empty($filtros['razon_social'])) {
-            $this->like('unidad_economica.raz_social', $filtros['razon_social']);
-        }
-        if (!empty($filtros['fecha_alta'])) {
-            $this->where('unidad_economica.fecha_alta', $filtros['fecha_alta']);
-        }
-        if (!empty($filtros['per_ocu'])) {
-            $this->where('unidad_economica.per_ocu', $filtros['per_ocu']);
-        }
+
+        // 7. Buscador general (q) o por campos específicos
         if (!empty($filtros['q'])) {
             $this->groupStart()
                 ->like('unidad_economica.nom_estab', $filtros['q'])
                 ->orLike('unidad_economica.raz_social', $filtros['q'])
                 ->groupEnd();
-        }
-        if (!empty($filtros['cve_ent'])) {
-            $this->where('entidad_federativa.cve_ent', $filtros['cve_ent']);
+        } elseif (!empty($filtros['nombre'])) {
+            $this->like('unidad_economica.nom_estab', $filtros['nombre']);
         }
 
         return $this;
