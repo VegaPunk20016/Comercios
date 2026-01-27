@@ -74,7 +74,7 @@ class UnidadController extends ResourceController
     {
         set_time_limit(180);
         try {
-            $limit = $this->request->getVar('limit') ?? 10;
+            $limit = $this->request->getVar('limit') ?? 100;
             $limit = ($limit > 100) ? 100 : $limit;
             $pagina = $this->request->getVar('page') ?? 1;
 
@@ -103,7 +103,7 @@ class UnidadController extends ResourceController
             }
             return $this->respond([
                 'status' => 200,
-                'filtros_aplicados' => array_filter($filtros), // Útil para depurar qué filtros llegaron
+                'filtros_aplicados' => array_filter($filtros),
                 'data' => $unidades,
                 'meta' => [
                     'total' => $paginacion->getTotal(),
@@ -125,6 +125,37 @@ class UnidadController extends ResourceController
             log_message('error', 'Error en UnidadController::index: ' . $e->getMessage());
             return $this->failServerError('Ocurrió un error al obtener los registros de unidades');
         }
+    }
+
+    public function mapa()
+    {
+        set_time_limit(300);
+
+        $filtros = [
+            'cve_ent'      => $this->request->getVar('cve_ent'),
+            'municipio'    => $this->request->getVar('municipio'),
+            'cp'           => $this->request->getVar('cp'),
+            'ageb'         => $this->request->getVar('ageb'),
+            'manzana'      => $this->request->getVar('manzana'),
+            'actividad'    => $this->request->getVar('actividad'), 
+            'per_ocu'      => $this->request->getVar('per_ocu'),
+            'q'            => $this->request->getVar('q')
+        ];
+
+        $unidades = $this->model
+            ->withAllData()
+            ->aplicarFiltros($filtros)
+            ->findAll();   // 👈 SIN PAGINAR
+
+        foreach ($unidades as $item) {
+            $this->hydrateUnidad($item);
+        }
+
+        return $this->respond([
+            'status' => 200,
+            'data' => $unidades,
+            'total' => count($unidades)
+        ]);
     }
 
     public function show($id = null)
