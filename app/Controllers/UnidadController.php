@@ -72,12 +72,9 @@ class UnidadController extends ResourceController
 
     public function index()
     {
-        set_time_limit(180);
-        try {
-            $limit = $this->request->getVar('limit') ?? 100;
-            $limit = ($limit > 100) ? 100 : $limit;
-            $pagina = $this->request->getVar('page') ?? 1;
+        set_time_limit(300);
 
+        try {
             $filtros = [
                 'cve_ent'      => $this->request->getVar('cve_ent'),
                 'municipio'    => $this->request->getVar('municipio'),
@@ -92,32 +89,23 @@ class UnidadController extends ResourceController
                 'per_ocu'      => $this->request->getVar('per_ocu'),      
                 'q'            => $this->request->getVar('q')
             ];
+
             $unidades = $this->model
                 ->withAllData()
                 ->aplicarFiltros($filtros)
-                ->paginate($limit);
+                ->findAll();
 
-            $paginacion = $this->model->pager;
             foreach ($unidades as $item) {
                 $this->hydrateUnidad($item);
             }
+
             return $this->respond([
                 'status' => 200,
                 'filtros_aplicados' => array_filter($filtros),
-                'data' => $unidades,
-                'meta' => [
-                    'total' => $paginacion->getTotal(),
-                    'per_page' => $limit,
-                    'current_page' => $pagina,
-                    'total_pages' => $paginacion->getPageCount()
-                ],
-                'links' => [
-                    'first' => $paginacion->getPageURI(1),
-                    'last' => $paginacion->getPageURI($paginacion->getPageCount()),
-                    'prev' => ($pagina > 1) ? $paginacion->getPageURI($pagina - 1) : null,
-                    'next' => ($pagina < $paginacion->getPageCount()) ? $paginacion->getPageURI($pagina + 1) : null
-                ]
+                'total' => count($unidades),
+                'data' => $unidades
             ]);
+
         } catch (\mysqli_sql_exception $e) {
             log_message('critical', $e->getMessage());
             return $this->failServerError('Error crítico en la base de datos.');
@@ -125,37 +113,6 @@ class UnidadController extends ResourceController
             log_message('error', 'Error en UnidadController::index: ' . $e->getMessage());
             return $this->failServerError('Ocurrió un error al obtener los registros de unidades');
         }
-    }
-
-    public function mapa()
-    {
-        set_time_limit(300);
-
-        $filtros = [
-            'cve_ent'      => $this->request->getVar('cve_ent'),
-            'municipio'    => $this->request->getVar('municipio'),
-            'cp'           => $this->request->getVar('cp'),
-            'ageb'         => $this->request->getVar('ageb'),
-            'manzana'      => $this->request->getVar('manzana'),
-            'actividad'    => $this->request->getVar('actividad'), 
-            'per_ocu'      => $this->request->getVar('per_ocu'),
-            'q'            => $this->request->getVar('q')
-        ];
-
-        $unidades = $this->model
-            ->withAllData()
-            ->aplicarFiltros($filtros)
-            ->findAll();   // 👈 SIN PAGINAR
-
-        foreach ($unidades as $item) {
-            $this->hydrateUnidad($item);
-        }
-
-        return $this->respond([
-            'status' => 200,
-            'data' => $unidades,
-            'total' => count($unidades)
-        ]);
     }
 
     public function show($id = null)

@@ -51,8 +51,6 @@ $routes->group('api', ['namespace' => 'App\Controllers'], function ($routes) {
     ]);
 
     #Unidad 
-    $routes->get('unidad/mapa', 'UnidadController::mapa');
-    
     $routes->resource('unidad', [
         'controller' => 'UnidadController',
         'only' => ['index', 'show']
